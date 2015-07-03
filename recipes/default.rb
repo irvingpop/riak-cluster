@@ -2,8 +2,14 @@
 # first,  install riak
 include_recipe 'riak::default'
 
-# then, populate /etc/hosts from search results
+# second, wait for riak to settle
+execute 'wait-for-riak' do
+  command "riak-admin wait-for-service riak_kv riak@#{node['fqdn']}"
+  timeout 60
+  retries 3
+end
 
+# then, populate /etc/hosts from search results
 def extract_cluster_ip(node_results)
   use_interface = node['riak-cluster']['use_interface']
   node_results['network_interfaces'][use_interface]['addresses']
