@@ -3,7 +3,6 @@ source 'https://supermarket.chef.io'
 metadata
 
 cookbook 'riak', '~> 3.1'
-cookbook 'pkg_add', github: 'wanelo-chef/pkg_add'
+cookbook 'pkg_add', git: 'https://github.com/wanelo-chef/pkg_add.git'
 
-# Future
-#cookbook 'chef-provisioning-vagrant-helper', path: '../chef-provisioning-vagrant-helper'
+cookbook 'chef-provisioning-vagrant-helper', git: 'https://github.com/irvingpop/chef-provisioning-vagrant-helper.git'

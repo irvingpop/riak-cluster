@@ -1,7 +1,7 @@
 task :default => [:up]
 
 task :up => :setup do
-  sh('chef-client -z recipes/provision_vagrant.rb ')
+  sh('chef-client -z -o riak-cluster::provision_vagrant')
 end
 
 task :setup do
@@ -16,6 +16,6 @@ task :setup do
 end
 
 task :destroy do
-  sh('chef-client -z recipes/destroy_vagrant.rb ')
+  sh('chef-client -z -o riak-cluster::destroy_vagrant')
 end
 task :cleanup => :destroy
