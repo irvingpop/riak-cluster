@@ -8,4 +8,4 @@ version '0.1.0'
 
 depends 'riak'
 depends 'hostsfile'
-#depends 'chef-provisioning-vagrant-helper'
+depends 'chef-provisioning-vagrant-helper'

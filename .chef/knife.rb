@@ -1,5 +1,5 @@
 current_dir       = ::File.dirname(__FILE__)
-chef_repo_path    ::File.join(current_dir, '..')
-cookbook_path     ::File.join(current_dir, '..')
+parent_dir        = ::File.expand_path(::File.join(current_dir, '..'))
+chef_repo_path    parent_dir
+cookbook_path     ::File.join(parent_dir, 'vendor')
 node_name         'cluster-provisioner'
-file_cache_path   File.join(current_dir, 'local-mode-cache', 'cache')
