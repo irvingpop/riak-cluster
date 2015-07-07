@@ -7,9 +7,10 @@ execute 'wait-for-riak' do
   command "riak-admin wait-for-service riak_kv riak@#{node['fqdn']}"
   timeout 60
   retries 3
+  subscribes :run, 'service[riak]', :immediately
 end
 
-# then, populate /etc/hosts from search results
+# third, populate /etc/hosts from search results
 def extract_cluster_ip(node_results)
   use_interface = node['riak-cluster']['use_interface']
   node_results['network_interfaces'][use_interface]['addresses']
@@ -22,11 +23,10 @@ found_nodes = search(:node, "name:riak*",
     'fqdn' => [ 'fqdn' ],
     'network_interfaces' => [ 'network', 'interfaces' ]
   }
-)
+).reject { |nodedata| nodedata['network_interfaces'].nil? } #not if no interface data
+  .reject { |nodedata| nodedata['name'] == node.name } # not if it's me
 
 found_nodes.each do |nodedata|
-  next if nodedata['network_interfaces'].nil?
-
   hostsfile_entry extract_cluster_ip(nodedata) do
     hostname nodedata['fqdn']
     aliases [ nodedata['name'] ]
@@ -35,31 +35,34 @@ found_nodes.each do |nodedata|
   end
 end
 
-# Phase 3 - join the cluster
-
-# TODO - is this sane or do I need to specify one?
-master_server = found_nodes.first
-
-if master_server['name'] == node.name
-  log "I am the master, do nothing"
+# Finally - join the cluster if applicable
+if found_nodes.count == 0
+  log "I am the first one here, do nothing"
 else
-  log "Joining the Riak cluster, talking to #{master_server['fqdn']}"
+  pick_a_node = found_nodes.sample # pick one at random, not me
+  log "Joining the Riak cluster, talking to #{pick_a_node['fqdn']}"
 
   execute 'Riak cluster join' do
-    command "riak-admin cluster join riak@#{master_server['fqdn']}"
+    command "riak-admin cluster join riak@#{pick_a_node['fqdn']}"
     action :run
     notifies :run, 'execute[Riak cluster plan]', :immediately
-    not_if "riak-admin status |grep ring_members | grep #{master_server['fqdn']}"
+    not_if "riak-admin member-status | grep ^valid | grep #{pick_a_node['fqdn']}"
+    retries 6  # retry logic needed for cluster node replacement
+    retry_delay 30
   end
 
   execute 'Riak cluster plan' do
     command 'riak-admin cluster plan'
     action :nothing
     notifies :run, 'execute[Riak cluster commit]', :immediately
+    retries 6
+    retry_delay 30
   end
 
   execute 'Riak cluster commit' do
     command 'riak-admin cluster commit'
     action :nothing
+    retries 6
+    retry_delay 30
   end
 end

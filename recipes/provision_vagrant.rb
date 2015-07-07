@@ -6,16 +6,14 @@
 
 include_recipe 'chef-provisioning-vagrant-helper::default'
 
-riak_nodes = 3
-
 machine_batch 'precreate' do
   action [:converge]
 
-  1.upto(riak_nodes) do |i|
-    machine "riak#{i}" do
+  node['riak-cluster']['cluster_nodes'].each do |vmname|
+    machine vmname do
       recipe 'riak-cluster::default'
       attribute 'riak-cluster', { use_interface: 'eth1' }
-      machine_options vagrant_options("riak#{i}.example.com")
+      machine_options vagrant_options(vmname)
       # see chef-provisioning-vagrant-helper/libraries/vagrant_config.rb
     end
   end
