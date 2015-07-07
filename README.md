@@ -12,12 +12,12 @@ An MVP Chef cookbook for configuring a Riak cluster, using Chef Provisioning
 
 Starting up a cluster:
 ```bash
-rake
+rake up
 ```
 
 Connecting to your cluster nodes:
 ```bash
-cd vagrants ; vagrant ssh riak1
+cd vagrants ; vagrant ssh riak1.example.com
 ```
 
 Destroying the cluster
@@ -25,3 +25,10 @@ Destroying the cluster
 rake destroy
 ```
 
+Perform a rolling rebuild of the cluster:
+```bash
+rake rolling_rebuild
+```
+
+# TODO
+* AWS or other cloud support
