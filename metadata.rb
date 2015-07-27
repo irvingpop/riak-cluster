@@ -4,7 +4,7 @@ maintainer_email 'irving@chef.io'
 license 'all_rights'
 description 'Installs/Configures riak-cluster'
 long_description 'Installs/Configures riak-cluster'
-version '0.2.0'
+version '0.2.1'
 source_url       'https://github.com/irvingpop/riak-cluster'
 issues_url       'https://github.com/irvingpop/riak-cluster/issues'
 
